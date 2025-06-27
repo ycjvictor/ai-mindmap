@@ -9,3 +9,7 @@ testDir
 types
 
 sync_config.jsonc
+.cursor/rules
+package-lock.json
+yarn.lock
+webui/yarn.lock
