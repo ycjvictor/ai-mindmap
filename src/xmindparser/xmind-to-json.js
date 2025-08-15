@@ -8,7 +8,7 @@ class parser extends utils {
 	//读取图片文件信息
 	async getImageInfo(res, v) {
 		const file = await res.file(v).async('base64');
-		const base64 = `data:image/${(path.extname(v) || 'png').replace(/\./g, '')};base64,` + file;
+		const base64 = 'data:image/' + ((path.extname(v) || 'png').replace(/\./g, '')) + ';base64,' + file;
 		return Promise.resolve({ width: 200, height: 200, base64, name: v });
 	}
 
@@ -100,7 +100,7 @@ class parser extends utils {
 			const res = await zip.loadAsync(data, { optimizedBinaryString: true });
 			const { files } = res;
 			//查找xmind content json或xml文件
-			const keys = super.objMatchingkey(files, `${this.fileName}.json`) || super.objMatchingkey(files, this.fileName);
+			const keys = super.objMatchingkey(files, this.fileName + '.json') || super.objMatchingkey(files, this.fileName);
 			const isJsonFile = path.extname(keys).indexOf('json') >= 0;
 			//查找是否存在kityminder.json文件
 			const kityminderFile = files[this.kityminder];

@@ -133,4 +133,42 @@ div.minder-editor-container {
 @import (less) "_navigator.less";
 
 
+/* 更精确地隐藏原始进度图标 - 只针对特定的进度图标SVG元素 */
+.km-view svg {
+    /* 隐藏特定颜色的进度图标圆形 */
+    circle[fill="#FFED83"],
+    circle[fill="#43BC00"],
+    circle[fill="#8E8E8E"],
+    circle[fill="#ffed83"],
+    circle[fill="#43bc00"],
+    circle[fill="#8e8e8e"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* 隐藏特定的进度图标路径 */
+    path[fill="#FFED83"],
+    path[fill="#43BC00"], 
+    path[fill="#8E8E8E"],
+    path[fill="#ffed83"],
+    path[fill="#43bc00"], 
+    path[fill="#8e8e8e"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* 隐藏任何包含这些颜色的元素 */
+    *[fill*="#FFED83"],
+    *[fill*="#43BC00"],
+    *[fill*="#8E8E8E"],
+    *[stroke*="#FFED83"],
+    *[stroke*="#43BC00"],
+    *[stroke*="#8E8E8E"] {
+        display: none !important;
+    }
+}
+
+
 

@@ -115,16 +115,10 @@ define(function(require, exports, module) {
             'removenode': 'remove',
             'priority': 'Priority',
             'progress': {
-                'p1': 'not started',
-                'p2': 'Complete 1/8',
-                'p3': 'Complete 1/4',
-                'p4': 'Complete 3/8',
-                'p5': 'Complete half',
-                'p6': 'Complete 5/8',
-                'p7': 'Complete 3/4',
-                'p8': 'Complete 7/8',
-                'p9': 'Completed',
-                'p0': 'Clear progress'
+                'p0': 'Clear progress',
+                'p1': 'Pause',
+                'p2': 'Question',
+                'p3': 'Completed'
             },
             'resource': {
                 'add': 'Add'
