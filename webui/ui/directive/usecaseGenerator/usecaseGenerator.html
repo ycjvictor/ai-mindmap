@@ -1,0 +1,296 @@
+<div class="usecase-generator">
+    <!-- 工具栏按钮 -->
+    <div class="btn-group-vertical usecase-btn-group">
+        <button class="btn btn-default usecase-btn" 
+                ng-click="openUsecasePanel()"
+                title="用例生成助手">
+        </button>
+        <button class="btn btn-default usecase-btn-caption"
+                ng-click="openUsecasePanel()"
+                title="用例生成助手">
+            <span class="caption">用例助手</span>
+        </button>
+    </div>
+    
+    <!-- 侧边面板 -->
+    <div class="usecase-side-panel" ng-show="panelVisible">
+        <div class="panel-overlay" ng-click="closePanel()"></div>
+        <div class="panel-content">
+            <!-- 面板头部 -->
+            <div class="panel-header">
+                <h3 ng-show="currentView === 'main'">用例生成助手</h3>
+                <h3 ng-show="currentView === 'modelConfig'">模型配置</h3>
+                <h3 ng-show="currentView === 'knowledgeConfig'">知识库设置</h3>
+                
+                <div class="panel-actions">
+                    <button class="btn btn-sm btn-default dropdown-toggle" 
+                            ng-show="currentView === 'main'"
+                            data-toggle="dropdown">
+                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" ng-click="switchView('modelConfig')">模型设置</a></li>
+                        <li><a href="#" ng-click="switchView('knowledgeConfig')">知识库设置</a></li>
+                    </ul>
+                    <button class="btn btn-sm btn-default" ng-click="closePanel()">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 主界面 -->
+            <div class="panel-body" ng-show="currentView === 'main'">
+                <!-- 模型选择 -->
+                <div class="form-group">
+                    <label>AI 供应商</label>
+                    <select class="form-control" ng-model="modelConfig.provider">
+                        <option value="OpenRouter">OpenRouter</option>
+                        <option value="OpenAI">OpenAI</option>
+                        <option value="Azure">Azure OpenAI</option>
+                        <option value="DeepSeek">DeepSeek</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>模型</label>
+                    <select class="form-control" ng-model="modelConfig.model">
+                        <option ng-repeat="model in getFilteredModels()" 
+                                value="{{model.id}}">{{model.name}}</option>
+                    </select>
+                </div>
+                
+                <!-- API Key状态 -->
+                <div class="form-group">
+                    <label>API Key</label>
+                    <div class="api-key-status">
+                        <span ng-show="modelConfig.apiKey" class="text-success">
+                            <span class="glyphicon glyphicon-ok"></span> 已配置
+                        </span>
+                        <span ng-show="!modelConfig.apiKey" class="text-warning">
+                            <span class="glyphicon glyphicon-warning-sign"></span> 未配置
+                        </span>
+                        <button class="btn btn-sm btn-primary pull-right" 
+                                ng-click="switchView('modelConfig')">配置</button>
+                    </div>
+                </div>
+                
+                <!-- 用例生成配置 -->
+                <div class="form-group">
+                    <label>需求描述</label>
+                    <textarea class="form-control" 
+                              rows="4" 
+                              ng-model="generateConfig.description"
+                              placeholder="请详细描述要生成测试用例的功能需求...">
+                    </textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>分析类型</label>
+                    <div class="radio-group">
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="generateConfig.analysisType" value="comprehensive"> 
+                            <span>全面分析</span>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="generateConfig.analysisType" value="boundary"> 
+                            <span>边界条件</span>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="generateConfig.analysisType" value="scenario"> 
+                            <span>场景分析</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>输出格式</label>
+                    <div class="radio-group">
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="generateConfig.outputFormat" value="xmind"> 
+                            <span>XMind文件</span>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="generateConfig.outputFormat" value="km"> 
+                            <span>KM文件</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 高级选项 -->
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" ng-model="generateConfig.includeEdgeCases"> 
+                        包含边界条件测试
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" ng-model="generateConfig.includeNegativeCases"> 
+                        包含异常场景测试
+                    </label>
+                </div>
+                
+                <!-- 生成按钮 -->
+                <div class="form-group">
+                    <button class="btn btn-primary btn-lg btn-block" 
+                            ng-click="generateUsecases()"
+                            ng-disabled="generating">
+                        <span ng-show="!generating">
+                            <span class="glyphicon glyphicon-flash"></span> 
+                            生成测试用例
+                        </span>
+                        <span ng-show="generating">
+                            <span class="glyphicon glyphicon-refresh glyphicon-spin"></span> 
+                            生成中...
+                        </span>
+                    </button>
+                </div>
+                
+                <!-- 生成进度 -->
+                <div class="generation-progress" ng-show="generating">
+                    <div class="progress">
+                        <div class="progress-bar" 
+                             style="width: {{generationProgress}}%"
+                             aria-valuenow="{{generationProgress}}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div class="progress-text">{{currentStep}}</div>
+                </div>
+                
+                <!-- 快速导出 -->
+                <div class="export-actions" ng-show="!generating">
+                    <button class="btn btn-default btn-sm" ng-click="exportFile('xmind')">
+                        <span class="glyphicon glyphicon-download-alt"></span> 导出XMind
+                    </button>
+                    <button class="btn btn-default btn-sm" ng-click="exportFile('km')">
+                        <span class="glyphicon glyphicon-download-alt"></span> 导出KM
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 模型配置界面 -->
+            <div class="panel-body" ng-show="currentView === 'modelConfig'">
+                <button class="btn btn-default btn-sm" ng-click="switchView('main')">
+                    <span class="glyphicon glyphicon-chevron-left"></span> 返回
+                </button>
+                
+                <div class="form-group">
+                    <label>API 供应商</label>
+                    <select class="form-control" ng-model="modelConfig.provider">
+                        <option value="OpenRouter">OpenRouter</option>
+                        <option value="OpenAI">OpenAI</option>
+                        <option value="Azure">Azure OpenAI</option>
+                        <option value="DeepSeek">DeepSeek</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="password" 
+                           class="form-control" 
+                           ng-model="modelConfig.apiKey"
+                           placeholder="输入您的API Key...">
+                    <small class="text-muted">API Key保存在本地，仅本设备使用</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>模型</label>
+                    <select class="form-control" ng-model="modelConfig.model">
+                        <option ng-repeat="model in getFilteredModels()" 
+                                value="{{model.id}}">{{model.name}}</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>温度 (Temperature)</label>
+                    <input type="range" 
+                           class="form-control" 
+                           min="0" 
+                           max="1" 
+                           step="0.1" 
+                           ng-model="modelConfig.temperature">
+                    <small class="text-muted">当前值: {{modelConfig.temperature}}</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>最大Token数</label>
+                    <input type="number" 
+                           class="form-control" 
+                           ng-model="modelConfig.maxTokens"
+                           min="100" 
+                           max="8000">
+                </div>
+                
+                <button class="btn btn-primary" ng-click="saveApiKey()">
+                    保存配置
+                </button>
+            </div>
+            
+            <!-- 知识库配置界面 -->
+            <div class="panel-body" ng-show="currentView === 'knowledgeConfig'">
+                <button class="btn btn-default btn-sm" ng-click="switchView('main')">
+                    <span class="glyphicon glyphicon-chevron-left"></span> 返回
+                </button>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" ng-model="knowledgeConfig.enableRAG"> 
+                        启用RAG增强
+                    </label>
+                    <small class="text-muted">基于相关文档生成更准确的测试用例</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" ng-model="knowledgeConfig.enableCodeContext"> 
+                        代码上下文
+                    </label>
+                    <small class="text-muted">分析项目代码结构生成测试用例</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" ng-model="knowledgeConfig.enableDocContext"> 
+                        文档上下文
+                    </label>
+                    <small class="text-muted">基于项目文档生成测试用例</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" ng-model="knowledgeConfig.enableHistoryContext"> 
+                        历史用例
+                    </label>
+                    <small class="text-muted">参考历史测试用例模式</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>搜索深度</label>
+                    <select class="form-control" ng-model="knowledgeConfig.searchDepth">
+                        <option value="3">浅层搜索 (3层)</option>
+                        <option value="5">中等搜索 (5层)</option>
+                        <option value="10">深度搜索 (10层)</option>
+                    </select>
+                </div>
+                
+                <div class="knowledge-status">
+                    <h5>知识库状态</h5>
+                    <div class="status-item">
+                        <span class="status-label">测试知识库:</span>
+                        <span class="status-value text-success">已连接</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">代码上下文:</span>
+                        <span class="status-value text-success">5个组件</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">历史用例:</span>
+                        <span class="status-value text-success">127个模板</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

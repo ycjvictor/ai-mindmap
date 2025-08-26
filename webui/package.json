@@ -9,7 +9,9 @@
     "dev": "grunt dev",
     "watch": "wr --exec \"lessc --source-map less/editor.less dist/kityminder.editor.css && grunt build\" less ui",
     "postinstall": "bower install",
-    "build:watch": "rollup -w --config ./rollup.config.js"
+    "build:watch": "rollup -w --config ./rollup.config.js",
+    "proxy": "node proxy-server.js",
+    "dev:full": "npm run proxy & npm run dev"
   },
   "repository": {
     "type": "git",
@@ -49,7 +51,10 @@
     "uglify-js": "^2.8.29"
   },
   "dependencies": {
-    "kityminder-core": "^1.4.50"
+    "kityminder-core": "^1.4.50",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "cors": "^2.8.5"
   },
   "config": {
     "commitizen": {

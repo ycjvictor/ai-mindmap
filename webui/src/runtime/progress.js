@@ -18,15 +18,32 @@ define(function (require, exports, module) {
         });
 
         var progress = hotbox.state('progress');
-        '0123'.replace(/./g, function (p) {
-            progress.button({
-                position: 'ring',
-                label: 'G' + p,
-                key: p,
-                action: function () {
-                    minder.execCommand('Progress', parseInt(p));
-                }
-            });
+        // 修正按钮映射：与工具栏按钮一致
+        progress.button({
+            position: 'ring',
+            label: '✓',  // ✓ 按钮显示绿色对勾
+            key: '1',
+            action: function () {
+                minder.execCommand('Progress', 1); // 对勾状态 - 绿色✓
+            }
+        });
+        
+        progress.button({
+            position: 'ring', 
+            label: '?',  // ? 按钮显示蓝色问号
+            key: '2',
+            action: function () {
+                minder.execCommand('Progress', 2); // 问题状态 - 蓝色?
+            }
+        });
+        
+        progress.button({
+            position: 'ring',
+            label: '=',  // = 按钮显示橙色双竖线
+            key: '3',
+            action: function () {
+                minder.execCommand('Progress', 3); // 暂停状态 - 橙色||
+            }
         });
 
         progress.button({
@@ -59,84 +76,88 @@ define(function (require, exports, module) {
                 
                 console.log('Creating custom progress icon - Level:', progress, 'for node:', node.getText());
                 
-                // 创建图标组
+                // 获取节点唯一标识符（兼容不同的KityMinder版本）
+                var nodeId = node.id || node.data.id || node.uuid || (Math.random().toString(36).substr(2, 9));
+                
+                // 创建图标组，使用唯一ID
                 var iconGroup = new kity.Group();
+                var iconId = 'custom-progress-icon-' + nodeId;
+                iconGroup.setId(iconId);
                 
-                // 先添加阴影效果
-                var shadow = new kity.Circle(15);
-                shadow.fill('#00000020');
-                shadow.translate(2, 2);
-                iconGroup.addShape(shadow);
+                // 不使用圆形背景，直接显示图标内容
                 
-                // 创建更大的圆形背景，使用更明显的边框
-                var circle = new kity.Circle(15);
-                circle.fill('#ffffff');
-                circle.stroke('#333333', 2);
-                iconGroup.addShape(circle);
-                
-                // 创建内容形状，根据进度级别显示不同的图标
+                // 创建工具栏风格的图标
                 switch(progress) {
                     case 1:
-                        console.log('Creating PAUSE icon (level 1)');
-                        // 暂停图标 - 两个明显的橙色竖线
-                        var line1 = new kity.Rect(4, 16);
-                        line1.fill('#ff6600');
-                        line1.stroke('#ff6600', 1);
-                        line1.translate(-6, -8);
-                        iconGroup.addShape(line1);
+                        console.log('Creating CHECKMARK icon (level 1)');
+                        // 绿色对勾图标 - 仿工具栏样式
+                        var bgCircle = new kity.Circle(10);
+                        bgCircle.fill('#28a745');
+                        bgCircle.stroke('#1e7e34', 1);
+                        iconGroup.addShape(bgCircle);
                         
-                        var line2 = new kity.Rect(4, 16);
-                        line2.fill('#ff6600');
-                        line2.stroke('#ff6600', 1);
-                        line2.translate(2, -8);
-                        iconGroup.addShape(line2);
-                        
-                        // 明显的橙色背景
-                        circle.fill('#ffcc99');
-                        circle.stroke('#ff6600', 2);
-                        break;
-                    case 2:
-                        console.log('Creating QUESTION icon (level 2)');
-                        // 问题图标 - 更大更明显的蓝色问号
-                        var text = new kity.Text();
-                        text.setContent('?');
-                        text.setTextAnchor('middle');
-                        text.setX(0);
-                        text.setY(6);
-                        text.setFont({
-                            size: 18,
-                            family: 'Arial, sans-serif',
-                            weight: 'bold'
-                        });
-                        text.fill('#0066cc');
-                        text.stroke('#0066cc', 1);
-                        iconGroup.addShape(text);
-                        
-                        // 明显的蓝色背景
-                        circle.fill('#cce6ff');
-                        circle.stroke('#0066cc', 2);
-                        break;
-                    case 3:
-                        console.log('Creating CHECKMARK icon (level 3)');
-                        // 完成图标 - 更大更明显的绿色对勾
                         var checkText = new kity.Text();
                         checkText.setContent('✓');
                         checkText.setTextAnchor('middle');
                         checkText.setX(0);
-                        checkText.setY(6);
+                        checkText.setY(0);
                         checkText.setFont({
-                            size: 20,
+                            size: 14,
                             family: 'Arial, sans-serif',
                             weight: 'bold'
                         });
-                        checkText.fill('#009900');
-                        checkText.stroke('#009900', 1);
+                        checkText.fill('#ffffff');
+                        // 设置垂直居中
+                        checkText.setAttr('dominant-baseline', 'central');
                         iconGroup.addShape(checkText);
-                        
-                        // 明显的绿色背景
-                        circle.fill('#ccffcc');
-                        circle.stroke('#009900', 2);
                         break;
+                        
+                    case 2:
+                        console.log('Creating QUESTION icon (level 2)');
+                        // 蓝色问号图标 - 仿工具栏样式
+                        var questionBg = new kity.Circle(10);
+                        questionBg.fill('#007bff');
+                        questionBg.stroke('#0056b3', 1);
+                        iconGroup.addShape(questionBg);
+                        
+                        var questionText = new kity.Text();
+                        questionText.setContent('?');
+                        questionText.setTextAnchor('middle');
+                        questionText.setX(0);
+                        questionText.setY(0);
+                        questionText.setFont({
+                            size: 14,
+                            family: 'Arial, sans-serif',
+                            weight: 'bold'
+                        });
+                        questionText.fill('#ffffff');
+                        // 设置垂直居中
+                        questionText.setAttr('dominant-baseline', 'central');
+                        iconGroup.addShape(questionText);
+                        break;
+                        
+                    case 3:
+                        console.log('Creating PAUSE icon (level 3)');
+                        // 暂停图标 - 仿工具栏样式
+                        var pauseBg = new kity.Circle(10);
+                        pauseBg.fill('#ffc107');
+                        pauseBg.stroke('#e0a800', 1);
+                        iconGroup.addShape(pauseBg);
+                        
+                        // 创建暂停图标（双竖线）
+                        // 左竖线
+                        var leftLine = new kity.Rect(2.5, 10);
+                        leftLine.fill('#ffffff');
+                        leftLine.translate(-4, -5);
+                        iconGroup.addShape(leftLine);
+                        
+                        // 右竖线
+                        var rightLine = new kity.Rect(2.5, 10);
+                        rightLine.fill('#ffffff');
+                        rightLine.translate(1.5, -5);
+                        iconGroup.addShape(rightLine);
+                        break;
+                        
                     default:
                         console.log('Unknown progress level:', progress);
                         break;
@@ -178,7 +199,14 @@ define(function (require, exports, module) {
                 var processedCount = 0;
                 var createdCount = 0;
                 
-                minder.getRoot().traverse(function(node) {
+                // 先检查是否有根节点
+                var root = minder.getRoot();
+                if (!root) {
+                    console.log('没有找到根节点');
+                    return;
+                }
+                
+                root.traverse(function(node) {
                     try {
                         var progress = node.getData('progress');
                         var nodeId = getNodeId(node);
@@ -214,24 +242,46 @@ define(function (require, exports, module) {
                             // 创建新的进度图标
                             var icon = createProgressIcon(node);
                             if (icon) {
-                                // 获取节点的边界框来计算位置
-                                var nodeBox = node.getRenderBox();
-                                if (nodeBox) {
-                                    var iconX = nodeBox.x + nodeBox.width + 15;
-                                    var iconY = nodeBox.y + nodeBox.height / 2;
-                                    
-                                    // 设置图标位置
-                                    icon.translate(iconX, iconY);
-                                    
-                                    // 添加到节点容器
-                                    nodeContainer.addShape(icon);
-                                    
-                                    // 存储映射关系
-                                    nodeIconMap.set(nodeId, icon);
-                                    createdCount++;
-                                    
-                                    console.log('Successfully created icon for node:', nodeId, 'progress:', progress);
+                                                            // 获取节点的边界框和渲染容器来计算正确位置
+                            var nodeBox = node.getRenderBox();
+                            if (nodeBox) {
+                                // 将图标放在节点左侧外部，调整位置
+                                var iconX = -19; // 再向右调整2像素
+                                var iconY = -1;  // 向下调整3像素
+                                
+                                // 设置图标位置（相对定位）
+                                icon.translate(iconX, iconY);
+                                
+                                // 确保图标可见性
+                                icon.setVisible(true);
+                                
+                                // 添加到节点容器
+                                nodeContainer.addShape(icon);
+                                
+                                console.log('Icon positioned at offset:', iconX, iconY);
+                                
+                                // 确保图标在最顶层（使用Kity的方法）
+                                try {
+                                    if (icon.bringTop) {
+                                        icon.bringTop();
+                                    } else if (nodeContainer.bringShapeToFront) {
+                                        nodeContainer.bringShapeToFront(icon);
+                                    }
+                                } catch (e) {
+                                    console.log('无法调整图标层级:', e);
                                 }
+                                
+                                // 强制移除可能存在的原始进度图标
+                                setTimeout(function() {
+                                    hideOriginalProgressIcons(nodeContainer);
+                                }, 50);
+                                
+                                // 存储映射关系
+                                nodeIconMap.set(nodeId, icon);
+                                createdCount++;
+                                
+                                console.log('Successfully created icon for node:', nodeId, 'progress:', progress);
+                            }
                             }
                             
                             processingNodes.delete(nodeId);
@@ -259,6 +309,87 @@ define(function (require, exports, module) {
                 timeout = setTimeout(addProgressIcons, 100);
             };
         })();
+
+        // 隐藏原始进度图标的函数
+        function hideOriginalProgressIcons(container) {
+            try {
+                var shapes = container.getShapes();
+                shapes.forEach(function(shape) {
+                    try {
+                        // 检查shape的类型和属性
+                        var shapeName = '';
+                        var fillColor = '';
+                        var strokeColor = '';
+                        
+                        // 获取shape类型
+                        if (shape.node && shape.node.nodeName) {
+                            shapeName = shape.node.nodeName.toLowerCase();
+                        } else if (shape.type) {
+                            shapeName = shape.type.toLowerCase();
+                        }
+                        
+                        // 安全地获取填充颜色
+                        if (typeof shape.getFill === 'function') {
+                            var fill = shape.getFill();
+                            if (fill) {
+                                fillColor = fill.toString();
+                            }
+                        } else if (shape.fill) {
+                            fillColor = shape.fill.toString();
+                        }
+                        
+                        // 安全地获取描边颜色
+                        if (typeof shape.getStroke === 'function') {
+                            var stroke = shape.getStroke();
+                            if (stroke) {
+                                strokeColor = stroke.toString();
+                            }
+                        } else if (shape.stroke) {
+                            strokeColor = shape.stroke.toString();
+                        }
+                        
+                        // 检查是否是原始进度图标
+                        var isProgressIcon = false;
+                        if (fillColor && (
+                            fillColor.includes('#FFED83') ||
+                            fillColor.includes('#43BC00') ||
+                            fillColor.includes('#8E8E8E') ||
+                            fillColor.includes('#ffed83') ||
+                            fillColor.includes('#43bc00') ||
+                            fillColor.includes('#8e8e8e')
+                        )) {
+                            isProgressIcon = true;
+                        }
+                        
+                        if (strokeColor && (
+                            strokeColor.includes('#FFED83') ||
+                            strokeColor.includes('#43BC00') ||
+                            strokeColor.includes('#8E8E8E')
+                        )) {
+                            isProgressIcon = true;
+                        }
+                        
+                        // 隐藏原始进度图标
+                        if (isProgressIcon) {
+                            if (typeof shape.setVisible === 'function') {
+                                shape.setVisible(false);
+                            } else if (shape.node) {
+                                shape.node.style.display = 'none';
+                                shape.node.style.visibility = 'hidden';
+                                shape.node.style.opacity = '0';
+                            }
+                            console.log('Hidden original progress icon:', shapeName, fillColor || strokeColor);
+                        }
+                        
+                    } catch (shapeError) {
+                        // 单个shape处理失败不影响其他shape
+                        console.log('Error processing individual shape:', shapeError);
+                    }
+                });
+            } catch (e) {
+                console.log('Error hiding original icons:', e);
+            }
+        }
 
         // 监听内容变化来更新进度图标
         minder.on('contentchange', function() {

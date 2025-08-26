@@ -118,6 +118,7 @@ div.minder-editor-container {
 @import (less) "topTab/idea/priority.less";
 @import (less) "topTab/idea/progress.less";
 @import (less) "topTab/idea/resource.less";
+@import (less) "topTab/idea/usecaseGenerator.less";
 @import (less) "topTab/appearance/templatePanel.less";
 @import (less) "topTab/appearance/themePanel.less";
 @import (less) "topTab/appearance/layout.less";
@@ -133,21 +134,9 @@ div.minder-editor-container {
 @import (less) "_navigator.less";
 
 
-/* 更精确地隐藏原始进度图标 - 只针对特定的进度图标SVG元素 */
+/* 隐藏原始的KityMinder进度图标（主要是path元素） */
 .km-view svg {
-    /* 隐藏特定颜色的进度图标圆形 */
-    circle[fill="#FFED83"],
-    circle[fill="#43BC00"],
-    circle[fill="#8E8E8E"],
-    circle[fill="#ffed83"],
-    circle[fill="#43bc00"],
-    circle[fill="#8e8e8e"] {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-    
-    /* 隐藏特定的进度图标路径 */
+    /* 隐藏原始进度图标路径 - 通过属性选择器 */
     path[fill="#FFED83"],
     path[fill="#43BC00"], 
     path[fill="#8E8E8E"],
@@ -159,14 +148,76 @@ div.minder-editor-container {
         visibility: hidden !important;
     }
     
-    /* 隐藏任何包含这些颜色的元素 */
-    *[fill*="#FFED83"],
-    *[fill*="#43BC00"],
-    *[fill*="#8E8E8E"],
-    *[stroke*="#FFED83"],
-    *[stroke*="#43BC00"],
-    *[stroke*="#8E8E8E"] {
+    /* 隐藏原始进度图标路径 - 通过具体ID（更精确） */
+    #kity_path_295,
+    #kity_path_296,
+    #kity_path_297 {
         display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* 隐藏整个原始进度图标组（最彻底的解决方案） */
+    #node_progress1,
+    g[id^="node_progress"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* 隐藏其他可能的进度图标形状 */
+    rect[fill="#FFED83"],
+    rect[fill="#43BC00"],
+    rect[fill="#8E8E8E"],
+    circle[fill="#FFED83"],
+    circle[fill="#43BC00"],
+    circle[fill="#8E8E8E"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* 强制显示我们的自定义图标 */
+    g[id*="custom-progress-icon"],
+    g[id*="progress-icon"] {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 999 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* 强制显示自定义图标及其所有子元素 */
+    g[id*="custom-progress-icon"] * {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* 确保自定义图标内的文本可见 - 保持原始样式 */
+    g[id*="custom-progress-icon"] text,
+    g[id*="progress-icon"] text {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        text-anchor: middle !important;
+        dominant-baseline: central !important;
+    }
+    
+    /* 确保自定义图标内的所有图形元素可见 */
+    g[id*="custom-progress-icon"] rect,
+    g[id*="custom-progress-icon"] circle,
+    g[id*="custom-progress-icon"] path,
+    g[id*="custom-progress-icon"] text,
+    g[id*="custom-progress-icon"] polygon,
+    g[id*="progress-icon"] rect,
+    g[id*="progress-icon"] circle,
+    g[id*="progress-icon"] path,
+    g[id*="progress-icon"] text,
+    g[id*="progress-icon"] polygon {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 }
 
