@@ -58,6 +58,7 @@ module.exports = function(grunt) {
                 files: [{
                     src: [
                         'src/**/*.js',
+                        'ui/**/*.js',
 						'l10n/*.js'
                     ],
                     dest: '.tmp/scripts/kityminder.editor.logic.js'
@@ -72,6 +73,7 @@ module.exports = function(grunt) {
                 src: 'src/**'
             },
             options: {
+                port: 3000,
                 server: {
                     baseDir: './',
                     index: 'index.html',
